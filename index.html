@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>آکادمی کلمات | بازی تعاملی</title>
+    <!-- کتابخانه افکت فشفشه حرفه ای -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FF9a9e 0%, #Fad0C4 99%, #Fad0C4 100%);
+            --accent-color: #4facfe;
+            --success-color: #00f2fe;
+            --danger-color: #ff4b2b;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #4a4a4a;
+            --border-radius: 25px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            background-image: radial-gradient(#d1d9e6 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-main);
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Header & Profile Section */
+        .header {
+            background: var(--primary-gradient);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+        }
+
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .profile-img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 6px solid white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-img:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        .header h1 {
+            margin: 10px 0 5px;
+            font-size: clamp(24px, 5vw, 36px);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Game Container */
+        .game-wrapper {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .instruction {
+            text-align: center;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .game-row {
+            background: var(--card-bg);
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Token & Slot System */
+        .tokens-area {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .token {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 3px solid #cbd5e0;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: grab;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 0 #cbd5e0;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .token:active {
+            cursor: grabbing;
+            transform: scale(0.9);
+            box-shadow: 0 2px 0 #cbd5e0;
+        }
+
+        .token.dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
+            z-index: 1000;
+        }
+
+        /* Answer Section */
+        .answer-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .answer-input {
+            width: 160px;
+            height: 60px;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.3);
+        }
+
+        .check-btn {
+            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        /* Feedback Styles */
+        .row-success {
+            border-color: #4ade80;
+            background: #f0fdf4;
+        }
+
+        .row-error {
+            border-color: #f87171;
+            background: #fef2f2;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .game-row {
+                flex-direction: column;
+                text-align: center;
+            }
+            .answer-area {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+            }
+            .answer-input {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="profile-container">
+            <!-- جایگذاری عکس شما -->
+            <img src="my-photo.jpg" alt="معلم عزیز" class="profile-img" onerror="this.src='https://via.placeholder.com/130?text=Teacher'">
+            <h1>بازی جادویی کلمات</h1>
+        </div>
+        <div class="instruction">🧩 نشانه‌ها را جابه‌جا کن و کلمه درست را بنویس!</div>
+    </div>
+
+    <div class="game-wrapper" id="mainGame"></div>
+
+    <!-- صداها -->
+    <audio id="sound-success" src="https://cdn.pixabay.com/audio/2021/08/04/audio_bb4569341e.mp3"></audio>
+    <audio id="sound-error" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c98bc9d22d.mp3"></audio>
+
+    <script>
+        const gameData = [
+            { tokens: ["آ", "ب", "د", "ا"], answer: "بادا" },
+            { tokens: ["بـ", "آ", "ا", "د"], answer: "باد" },
+            { tokens: ["ا", "م", "بـ"], answer: "بام" },
+            { tokens: ["بـ", "-َ", "د", "سـ", "-َ"], answer: "سد" },
+            { tokens: ["د", "ت", "سـ", "- َ"], answer: "دست" },
+            { tokens: ["ا", "مـ", "ا", "د", "د"], answer: "امد" },
+            { tokens: ["م", "سـ", "ا"], answer: "مسا" },
+            { tokens: ["ب", "ا", "اَ"], answer: "با" },
+            { tokens: ["سـ", "م", "- َ"], answer: "سم" },
+            { tokens: ["ب", "د", "اَ", "-َ"], answer: "بد" },
+            { tokens: ["سـ", "مـ", "ا", "- َ"], answer: "سما" },
+            { tokens: ["د", "ا", "مـ", "- َ"], answer: "دام" },
+            { tokens: ["م", "د", "آ", "- َ"], answer: "مد" },
+            { tokens: ["مـ", "اَ", "ا", "سـ"], answer: "ماس" },
+            { tokens: ["م", "د", "آ", "مـ", "-‌َ", "-‌َ"], answer: "مدام" }
+        ];
+
+        const mainGame = document.getElementById('mainGame');
+        const soundSuccess = document.getElementById('sound-success');
+        const soundError = document.getElementById('sound-error');
+
+        function initGame() {
+            gameData.forEach((data, index) => {
+                const row = document.createElement('div');
+                row.className = 'game-row';
+                row.id = `row-${index}`;
+
+                // ایجاد بخش نشانه‌ها
+                const tokensArea = document.createElement('div');
+                tokensArea.className = 'tokens-area';
+                
+                // مخلوط کردن نشانه‌ها برای چالش بیشتر
+                const shuffledTokens = [...data.tokens].sort(() => Math.random() - 0.5);
+                
+                shuffledTokens.forEach(t => {
+                    const tokenEl = document.createElement('div');
+                    tokenEl.className = 'token';
+                    tokenEl.textContent = t;
+                    tokenEl.draggable = true;
+                    
+                    // رویدادهای Drag and Drop برای دسکتاپ
+                    tokenEl.addEventListener('dragstart', handleDragStart);
+                    tokenEl.addEventListener('dragend', handleDragEnd);
+                    
+                    tokensArea.appendChild(tokenEl);
+                });
+
+                // ایجاد بخش پاسخ
+                const answerArea = document.createElement('div');
+                answerArea.className = 'answer-area';
+                answerArea.innerHTML = `
+                    <input type="text" class="answer-input" id="input-${index}" placeholder="...">
+                    <button class="check-btn" onclick="validate(${index})">بررسی</button>
+                `;
+
+                row.appendChild(tokensArea);
+                row.appendChild(answerArea);
+                mainGame.appendChild(row);
+
+                // فعال‌سازی Drag over برای کل ردیف
+                tokensArea.addEventListener('dragover', handleDragOver);
+                tokensArea.addEventListener('drop', handleDrop);
+            });
+        }
+
+        // منطق جابه‌جایی نشانه‌ها
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.textContent);
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetToken = e.target.closest('.token');
+            if (targetToken && draggedElement && targetToken !== draggedElement) {
+                // جابه‌جایی محتوا (Swap)
+                const tempText = targetToken.textContent;
+                targetToken.textContent = draggedElement.textContent;
+                draggedElement.textContent = tempText;
+            }
+        }
+
+        // سیستم بررسی پاسخ
+        window.validate = function(index) {
+            const input = document.getElementById(`input-${index}`);
+            const row = document.getElementById(`row-${index}`);
+            const userValue = input.value.trim();
+            const correctValue = gameData[index].answer;
+
+            if (userValue === correctValue) {
+                row.className = 'game-row row-success';
+                soundSuccess.play();
+                
+                // افکت فشفشه مهندسی شده
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
+                });
+            } else {
+                row.className = 'game-row row-error';
+                soundError.play();
+                setTimeout(() => {
+                    row.classList.remove('row-error');
+                }, 500);
+            }
+        };
+
+        // پشتیبانی از لمس برای موبایل (Touch Implementation)
+        document.addEventListener('touchstart', function(e) {
+            if(e.target.classList.contains('token')) {
+                draggedElement = e.target;
+                draggedElement.classList.add('dragging');
+            }
+        }, {passive: true});
+
+        document.addEventListener('touchend', function(e) {
+            if(!draggedElement) return;
+            
+            const touch = e.changedTouches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetToken = target ? target.closest('.token') : null;
+
+            if(targetToken && targetToken !== draggedElement) {
+                const tempText = targetToken.textContent;
+                targetToken.textContent = draggedElement.textContent;
+                draggedElement.textContent = tempText;
+            }
+            
+            draggedElement.classList.remove('dragging');
+            draggedElement = null;
+        }, {passive: true});
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
