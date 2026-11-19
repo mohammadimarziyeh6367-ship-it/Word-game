@@ -976,6 +976,7 @@ $("nextWord").addEventListener("click", () => {
 ۶. او با دست توت داد.
 
 ۷. سام با اسما دوست است.
+   اسما با سما دوست است. 
 */
 
 
@@ -1239,7 +1240,7 @@ function selectSentenceWord(index) {
 function updateCurrentSentence() {
 
     $("currentSentence").textContent =
-        currentSentenceWords.join(" ");
+        currentSentenceWords.join(" ") + ".";
 
 }
 
@@ -1275,7 +1276,7 @@ $("checkSentence").addEventListener("click", () => {
             "feedback good";
 
         $("currentSentence").textContent =
-            currentSentenceWords.join(" ");
+            currentSentenceWords.join(" ") + ".";
 
         document.querySelectorAll(".sentence-box").forEach(box => {
 
