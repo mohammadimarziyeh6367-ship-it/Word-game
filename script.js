@@ -35,47 +35,187 @@ function showScreen(id) {
 /* ==================================
    صداهای بازی
 ================================== */
+/* ==================================
+   صداهای بازی و افکت تشویق
+================================== */
+
+let gameAudio = null;
+
+function getAudio() {
+
+    const AudioContext =
+        window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContext) return null;
+
+    if (!gameAudio) {
+        gameAudio = new AudioContext();
+    }
+
+    if (gameAudio.state === "suspended") {
+        gameAudio.resume();
+    }
+
+    return gameAudio;
+}
+
 
 function playSound(type) {
 
     try {
 
-        const AudioContext =
-            window.AudioContext || window.webkitAudioContext;
+        const audio = getAudio();
 
-        const audio = new AudioContext();
+        if (!audio) return;
 
-        const oscillator = audio.createOscillator();
+        const now = audio.currentTime;
 
-        const gain = audio.createGain();
+        if (type === "good") {
 
-        oscillator.connect(gain);
-        gain.connect(audio.destination);
+            const notes = [523, 659, 784, 1046];
 
-        oscillator.type = "sine";
+            notes.forEach((frequency, index) => {
 
-        oscillator.frequency.value =
-            type === "good" ? 880 : 260;
+                const oscillator = audio.createOscillator();
+                const gain = audio.createGain();
 
-        gain.gain.setValueAtTime(
-            0.15,
-            audio.currentTime
-        );
+                oscillator.type = "sine";
+                oscillator.frequency.value = frequency;
 
-        gain.gain.exponentialRampToValueAtTime(
-            0.001,
-            audio.currentTime + 0.25
-        );
+                oscillator.connect(gain);
+                gain.connect(audio.destination);
 
-        oscillator.start();
+                const start = now + index * 0.11;
 
-        oscillator.stop(audio.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.001, start);
+                gain.gain.linearRampToValueAtTime(0.16, start + 0.025);
+                gain.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    start + 0.3
+                );
+
+                oscillator.start(start);
+                oscillator.stop(start + 0.32);
+
+            });
+
+        } else {
+
+            const oscillator = audio.createOscillator();
+            const gain = audio.createGain();
+
+            oscillator.type = "triangle";
+            oscillator.frequency.value = 220;
+
+            oscillator.connect(gain);
+            gain.connect(audio.destination);
+
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                now + 0.3
+            );
+
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+
+        }
 
     } catch (error) {
-        console.log("Audio unavailable");
+        console.log("Audio unavailable:", error);
     }
 
 }
+
+
+/* ==================================
+   افکت فشفشه و کاغذرنگی
+================================== */
+
+function celebrate() {
+
+    const overlay = document.createElement("div");
+
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 99999;
+    `;
+
+    document.body.appendChild(overlay);
+
+    const colors = [
+        "#ff3b6b",
+        "#ffd43b",
+        "#35c9ff",
+        "#8b5cf6",
+        "#39d98a",
+        "#ff8c42",
+        "#ffffff"
+    ];
+
+    for (let burst = 0; burst < 4; burst++) {
+
+        const centerX = Math.random() * 80 + 10;
+        const centerY = Math.random() * 55 + 15;
+
+        for (let i = 0; i < 24; i++) {
+
+            const particle = document.createElement("div");
+
+            const angle = Math.PI * 2 * i / 24;
+            const distance = 70 + Math.random() * 110;
+
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+
+            const size = 5 + Math.random() * 7;
+
+            particle.style.cssText = `
+                position: absolute;
+                left: ${centerX}%;
+                top: ${centerY}%;
+                width: ${size}px;
+                height: ${size}px;
+                border-radius: ${Math.random() > 0.5 ? "50%" : "2px"};
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                box-shadow: 0 0 8px currentColor;
+            `;
+
+            overlay.appendChild(particle);
+
+            particle.animate(
+                [
+                    {
+                        transform: "translate(0,0) scale(0.3) rotate(0deg)",
+                        opacity: 1
+                    },
+                    {
+                        transform: `translate(${x}px,${y}px) scale(1.2) rotate(360deg)`,
+                        opacity: 0
+                    }
+                ],
+                {
+                    duration: 1100 + Math.random() * 500,
+                    easing: "cubic-bezier(.15,.7,.3,1)",
+                    fill: "forwards"
+                }
+            );
+
+        }
+
+    }
+
+    setTimeout(() => {
+        overlay.remove();
+    }, 1800);
+
+}
+
 
 
 /* ==================================
