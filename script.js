@@ -511,17 +511,14 @@ function shuffleArray(original) {
 
 
 /* حذف اعراب برای بررسی پاسخ */
-
 function normalizeText(text) {
-
-    return text
-        .replace(/[\u064B-\u065F\u0670]/g, "")
-        .replace(/ي/g, "ی")
-        .replace(/ك/g, "ک")
-        .replace(/\s+/g, " ")
+    return String(text)
+        .normalize("NFC")
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+        .replace(/\s+/g, "")
         .trim();
-
 }
+
 
 
 /* ==================================
