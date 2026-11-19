@@ -908,6 +908,7 @@ $("checkWord").addEventListener("click", () => {
         updateWordProgress();
 
         playSound("good");
+        celebrate();
 
     } else {
 
@@ -1291,6 +1292,7 @@ $("checkSentence").addEventListener("click", () => {
         updateSentenceProgress();
 
         playSound("good");
+        celebrate();
 
     } else {
 
@@ -1350,6 +1352,7 @@ function finishGame() {
         "! تو هر سه مرحله را با موفقیت پشت سر گذاشتی. 🌟";
 
     playSound("good");
+    celebrate();
 
     showScreen("finish");
 
