@@ -1,18 +1,23 @@
 "use strict";
 
-/* ابزارهای اصلی */
-
 const $ = id => document.getElementById(id);
+
+
+/* ==================================
+   مدیریت صفحه‌ها
+================================== */
 
 const screens = [
     "welcome",
     "menu",
     "stageOne",
     "stageTwo",
+    "stageThree",
     "finish"
 ];
 
 function showScreen(id) {
+
     screens.forEach(screen => {
         $(screen).classList.remove("active");
     });
@@ -23,10 +28,13 @@ function showScreen(id) {
         top: 0,
         behavior: "smooth"
     });
+
 }
 
 
-/* صداهای بازی */
+/* ==================================
+   صداهای بازی
+================================== */
 
 function playSound(type) {
 
@@ -46,13 +54,13 @@ function playSound(type) {
 
         oscillator.type = "sine";
 
-        if (type === "good") {
-            oscillator.frequency.value = 880;
-        } else {
-            oscillator.frequency.value = 260;
-        }
+        oscillator.frequency.value =
+            type === "good" ? 880 : 260;
 
-        gain.gain.setValueAtTime(0.15, audio.currentTime);
+        gain.gain.setValueAtTime(
+            0.15,
+            audio.currentTime
+        );
 
         gain.gain.exponentialRampToValueAtTime(
             0.001,
@@ -66,10 +74,13 @@ function playSound(type) {
     } catch (error) {
         console.log("Audio unavailable");
     }
+
 }
 
 
-/* نام دانش‌آموز */
+/* ==================================
+   نام دانش‌آموز
+================================== */
 
 let student = "";
 
@@ -78,9 +89,14 @@ $("startButton").addEventListener("click", () => {
     student = $("studentName").value.trim();
 
     if (!student) {
+
         $("studentName").focus();
-        $("studentName").placeholder = "اول نامت را بنویس!";
+
+        $("studentName").placeholder =
+            "اول نامت را بنویس!";
+
         return;
+
     }
 
     $("displayName").textContent = student;
@@ -90,7 +106,9 @@ $("startButton").addEventListener("click", () => {
 });
 
 
-/* رفت‌وآمد بین مراحل */
+/* ==================================
+   دکمه‌های انتخاب مرحله
+================================== */
 
 $("stageOneButton").addEventListener("click", () => {
     showScreen("stageOne");
@@ -101,11 +119,20 @@ $("stageTwoButton").addEventListener("click", () => {
     showScreen("stageTwo");
 });
 
+$("stageThreeButton").addEventListener("click", () => {
+    startSentenceGame();
+    showScreen("stageThree");
+});
+
 $("backToMenu1").addEventListener("click", () => {
     showScreen("menu");
 });
 
 $("backToMenu2").addEventListener("click", () => {
+    showScreen("menu");
+});
+
+$("backToMenu3").addEventListener("click", () => {
     showScreen("menu");
 });
 
@@ -115,66 +142,111 @@ $("menuButton").addEventListener("click", () => {
 
 
 /* ==================================
-   مرحله اول: جدول دوستی نشانه‌ها
+   مرحله اول: جدول دوستی
 ================================== */
 
+/*
+نشانه‌های بالای جدول:
+
+آ      غیرقابل ترکیب
+ا      قابل ترکیب
+اَ     غیرقابل ترکیب
+ـَ     قابل ترکیب
+او     غیرقابل ترکیب
+و      قابل ترکیب
+
+نشانه‌های کنار جدول:
+
+بـ
+د
+مـ
+سـ
+تـ
+
+در ستون ـَ شکل غیرآخر حفظ می‌شود.
+*/
+
 const columns = [
-    "آ",
-    "ا",
-    "اَ",
-    "ـَ",
-    "او",
-    "و"
+
+    { label: "آ", valid: false },
+
+    { label: "ا", valid: true, type: "alef" },
+
+    { label: "اَ", valid: false },
+
+    { label: "ـَ", valid: true, type: "fatha" },
+
+    { label: "او", valid: false },
+
+    { label: "و", valid: true, type: "vav" }
+
 ];
+
 
 const rows = [
-    "بـ",
-    "دـ",
-    "مـ",
-    "سـ",
-    "تـ"
+
+    { label: "بـ", letter: "بـ" },
+
+    { label: "د", letter: "د" },
+
+    { label: "مـ", letter: "مـ" },
+
+    { label: "سـ", letter: "سـ" },
+
+    { label: "تـ", letter: "تـ" }
+
 ];
 
-const rowLetters = [
-    "ب",
-    "د",
-    "م",
-    "س",
-    "ت"
-];
 
 const table = $("friendTable");
 
 let completedCells = new Set();
 
+let selectedRow = null;
 
-/*
-خروجی نوشتاری ترکیب‌ها:
 
-آ و ا: الف بلند
-اَ و ـَ: صدای کوتاه اَ
-او و و: صدای او
-*/
+/* ساخت ترکیب درست */
 
 function makeCombination(rowIndex, colIndex) {
 
-    const letter = rowLetters[rowIndex];
+    const letter = rows[rowIndex].letter;
 
-    if (colIndex === 0 || colIndex === 1) {
-        return letter + "ا";
+    const column = columns[colIndex];
+
+    if (!column.valid) {
+        return "❌";
     }
 
-    if (colIndex === 2 || colIndex === 3) {
+    if (column.type === "alef") {
+
+        return letter.replace("ـ", "") + "ا";
+
+    }
+
+    if (column.type === "fatha") {
+
         return letter + "َ";
+
     }
 
-    return letter + "و";
+    if (column.type === "vav") {
+
+        return letter.replace("ـ", "") + "و";
+
+    }
+
+    return "❌";
+
 }
 
+
+/* ساخت جدول */
 
 function buildTable() {
 
     table.innerHTML = "";
+
+    selectedRow = null;
 
     const header = document.createElement("tr");
 
@@ -184,15 +256,47 @@ function buildTable() {
 
     header.appendChild(empty);
 
-    columns.forEach(column => {
+
+    columns.forEach((column, colIndex) => {
 
         const th = document.createElement("th");
 
-        th.textContent = column;
+        const button = document.createElement("button");
+
+        button.className = "friend-cell";
+
+        button.textContent = column.label;
+
+        button.style.background = "#7957ca";
+
+        button.style.color = "white";
+
+        button.style.minWidth = "75px";
+
+        button.addEventListener("click", () => {
+
+            if (selectedRow === null) {
+
+                $("tableFeedback").textContent =
+                    "اول یک نشانه از کنار جدول انتخاب کن.";
+
+                $("tableFeedback").className =
+                    "feedback bad";
+
+                return;
+
+            }
+
+            fillFriendCell(selectedRow, colIndex);
+
+        });
+
+        th.appendChild(button);
 
         header.appendChild(th);
 
     });
+
 
     table.appendChild(header);
 
@@ -205,7 +309,37 @@ function buildTable() {
 
         rowHead.className = "row-head";
 
-        rowHead.textContent = row;
+        const rowButton = document.createElement("button");
+
+        rowButton.className = "friend-cell";
+
+        rowButton.textContent = row.label;
+
+        rowButton.style.background = "#ed9b4d";
+
+        rowButton.style.color = "white";
+
+        rowButton.addEventListener("click", () => {
+
+            selectedRow = rowIndex;
+
+            document.querySelectorAll(".row-head button").forEach(button => {
+                button.classList.remove("selected");
+            });
+
+            rowButton.classList.add("selected");
+
+            $("equation").textContent =
+                "حالا دوست این نشانه را از بالای جدول انتخاب کن.";
+
+            $("tableFeedback").textContent =
+                "نشانهٔ " + row.label + " انتخاب شد.";
+
+            $("tableFeedback").className = "feedback";
+
+        });
+
+        rowHead.appendChild(rowButton);
 
         tr.appendChild(rowHead);
 
@@ -218,16 +352,11 @@ function buildTable() {
 
             button.className = "friend-cell";
 
-            button.textContent = "＋";
+            button.textContent = "؟";
 
             button.dataset.row = rowIndex;
+
             button.dataset.col = colIndex;
-
-            button.addEventListener("click", () => {
-
-                selectFriend(rowIndex, colIndex, button);
-
-            });
 
             td.appendChild(button);
 
@@ -242,43 +371,63 @@ function buildTable() {
 }
 
 
-function selectFriend(rowIndex, colIndex, button) {
+/* پر کردن خانه جدول */
+
+function fillFriendCell(rowIndex, colIndex) {
 
     const key = rowIndex + "-" + colIndex;
 
-    const combination = makeCombination(
-        rowIndex,
-        colIndex
+    const button = table.querySelector(
+        `button[data-row="${rowIndex}"][data-col="${colIndex}"]`
     );
 
-    const rowLetter = rowLetters[rowIndex];
+    if (completedCells.has(key)) {
 
-    const column = columns[colIndex];
+        $("tableFeedback").textContent =
+            "این خانه را قبلاً کامل کرده‌ای.";
 
-    if (!completedCells.has(key)) {
+        return;
 
-        completedCells.add(key);
+    }
 
-        button.textContent = combination;
+    const result = makeCombination(rowIndex, colIndex);
+
+    button.textContent = result;
+
+    completedCells.add(key);
+
+
+    if (result === "❌") {
+
+        button.classList.add("invalid");
+
+        $("equation").textContent =
+            rows[rowIndex].label + " + " +
+            columns[colIndex].label + " = ❌";
+
+        $("tableFeedback").textContent =
+            "این نشانه‌ها با هم دوست نمی‌شوند.";
+
+        $("tableFeedback").className =
+            "feedback bad";
+
+        playSound("bad");
+
+    } else {
 
         button.classList.add("completed");
 
         $("equation").textContent =
-            rowLetter + " + " + column +
-            " = " + combination;
+            rows[rowIndex].label + " + " +
+            columns[colIndex].label + " = " + result;
 
         $("tableFeedback").textContent =
-            "ترکیب ساخته شد! 🌸";
+            "آفرین! ترکیب درست را پیدا کردی. 🌸";
 
-        $("tableFeedback").className = "feedback good";
+        $("tableFeedback").className =
+            "feedback good";
 
         playSound("good");
-
-    } else {
-
-        $("equation").textContent =
-            rowLetter + " + " + column +
-            " = " + combination;
 
     }
 
@@ -286,6 +435,8 @@ function selectFriend(rowIndex, colIndex, button) {
 
 }
 
+
+/* پیشرفت جدول */
 
 function updateTableProgress() {
 
@@ -302,20 +453,20 @@ function updateTableProgress() {
         $("finishTable").disabled = false;
 
         $("tableFeedback").textContent =
-            "آفرین! همه خانه‌ها کامل شدند. ⭐";
+            "آفرین! همه خانه‌های جدول را کامل کردی. ⭐";
 
     }
 
 }
 
 
+/* ورود به مرحله دوم */
+
 $("finishTable").addEventListener("click", () => {
 
     if (completedCells.size !== 30) {
         return;
     }
-
-    playSound("good");
 
     startWordGame();
 
@@ -328,13 +479,54 @@ buildTable();
 
 
 /* ==================================
-   مرحله دوم: مرتب‌سازی واژه‌ها
+   ابزار مشترک مرتب‌سازی
 ================================== */
 
-/*
-هر کلمه به نشانه‌های جداگانه تقسیم شده است.
-اعراب به نشانه مربوط به خود چسبیده‌اند.
-*/
+function shuffleArray(original) {
+
+    const shuffled = [...original];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [shuffled[i], shuffled[j]] =
+            [shuffled[j], shuffled[i]];
+
+    }
+
+    if (
+        shuffled.join("|") === original.join("|") &&
+        shuffled.length > 1
+    ) {
+
+        [shuffled[0], shuffled[1]] =
+            [shuffled[1], shuffled[0]];
+
+    }
+
+    return shuffled;
+
+}
+
+
+/* حذف اعراب برای بررسی پاسخ */
+
+function normalizeText(text) {
+
+    return text
+        .replace(/[\u064B-\u065F\u0670]/g, "")
+        .replace(/ي/g, "ی")
+        .replace(/ك/g, "ک")
+        .replace(/\s+/g, " ")
+        .trim();
+
+}
+
+
+/* ==================================
+   مرحله دوم: قطار واژه‌ها
+================================== */
 
 const words = [
 
@@ -425,43 +617,6 @@ let selectedBox = null;
 let correctWords = 0;
 
 
-/* به‌هم‌ریختن نشانه‌ها */
-
-function shuffleLetters(original) {
-
-    const shuffled = [...original];
-
-    for (let i = shuffled.length - 1; i > 0; i--) {
-
-        const j = Math.floor(Math.random() * (i + 1));
-
-        [shuffled[i], shuffled[j]] =
-            [shuffled[j], shuffled[i]];
-
-    }
-
-    /*
-    اگر اتفاقاً کلمه درست باقی مانده باشد،
-    دو نشانه را جابه‌جا می‌کنیم.
-    */
-
-    if (
-        shuffled.join("|") === original.join("|") &&
-        shuffled.length > 1
-    ) {
-
-        [shuffled[0], shuffled[1]] =
-            [shuffled[1], shuffled[0]];
-
-    }
-
-    return shuffled;
-
-}
-
-
-/* شروع بازی واژه‌ها */
-
 function startWordGame() {
 
     currentWordIndex = 0;
@@ -477,15 +632,13 @@ function startWordGame() {
 }
 
 
-/* نمایش واژه */
-
 function loadWord() {
 
     selectedBox = null;
 
     const item = words[currentWordIndex];
 
-    currentLetters = shuffleLetters(item.letters);
+    currentLetters = shuffleArray(item.letters);
 
     $("wordNumber").textContent =
         currentWordIndex + 1;
@@ -505,8 +658,6 @@ function loadWord() {
 }
 
 
-/* نمایش کادرهای نشانه */
-
 function renderLetters() {
 
     const container = $("letterBoxes");
@@ -520,8 +671,6 @@ function renderLetters() {
         box.className = "letter-box";
 
         box.textContent = letter;
-
-        box.dataset.index = index;
 
         box.addEventListener("click", () => {
 
@@ -537,8 +686,6 @@ function renderLetters() {
 
 }
 
-
-/* انتخاب دو کادر و جابه‌جایی آن‌ها */
 
 function selectLetter(index) {
 
@@ -582,8 +729,6 @@ function selectLetter(index) {
 }
 
 
-/* ساخت واژه از نشانه‌ها */
-
 function updateCurrentWord() {
 
     $("currentWord").textContent =
@@ -592,7 +737,7 @@ function updateCurrentWord() {
 }
 
 
-/* بررسی پاسخ */
+/* بررسی واژه */
 
 $("checkWord").addEventListener("click", () => {
 
@@ -600,7 +745,10 @@ $("checkWord").addEventListener("click", () => {
 
     const correct = words[currentWordIndex].word;
 
-    if (answer === correct) {
+    if (
+        normalizeText(answer) ===
+        normalizeText(correct)
+    ) {
 
         $("wordFeedback").textContent =
             "آفرین! واژه را درست ساختی! ⭐";
@@ -611,9 +759,7 @@ $("checkWord").addEventListener("click", () => {
         $("currentWord").textContent = correct;
 
         document.querySelectorAll(".letter-box").forEach(box => {
-
             box.classList.add("correct");
-
         });
 
         $("checkWord").disabled = true;
@@ -641,8 +787,6 @@ $("checkWord").addEventListener("click", () => {
 });
 
 
-/* به‌روزرسانی پیشرفت */
-
 function updateWordProgress() {
 
     $("wordScore").textContent =
@@ -654,15 +798,15 @@ function updateWordProgress() {
 }
 
 
-/* واژه بعدی */
-
 $("nextWord").addEventListener("click", () => {
 
     currentWordIndex++;
 
     if (currentWordIndex >= words.length) {
 
-        finishGame();
+        startSentenceGame();
+
+        showScreen("stageThree");
 
         return;
 
@@ -673,13 +817,400 @@ $("nextWord").addEventListener("click", () => {
 });
 
 
-/* پایان بازی */
+/* ==================================
+   مرحله سوم: جمله‌سازی
+================================== */
+
+/*
+جمله‌های پذیرفته‌شده:
+
+۱. بابا با داماد بامداد آمد.
+
+۲. دود بدبو بود.
+
+۳. سما با سبا آدامس داد.
+   سبا با سما آدامس داد.
+
+۴. با او بادام دادم.
+
+۵. او با اسب آمد.
+
+۶. او با دست توت داد.
+
+۷. سام با اسما دوست است.
+*/
+
+
+const sentences = [
+
+    {
+        correct: [
+            ["بابا", "با", "داماد", "بامداد", "آمَد"],
+            ["بابا", "با", "داماد", "بامداد", "آمد"]
+        ],
+
+        scrambled: [
+            "آمَد",
+            "داماد",
+            "بابا",
+            "با",
+            "بامداد"
+        ]
+
+    },
+
+
+    {
+        correct: [
+            ["دود", "بَدبو", "بود"],
+            ["دود", "بدبو", "بود"]
+        ],
+
+        scrambled: [
+            "بَدبو",
+            "دود",
+            "بود"
+        ]
+
+    },
+
+
+    {
+        correct: [
+            ["سَما", "با", "سَبا", "آدامس", "داد"],
+            ["سَبا", "با", "سَما", "آدامس", "داد"],
+            ["سما", "با", "سبا", "آدامس", "داد"],
+            ["سبا", "با", "سما", "آدامس", "داد"]
+        ],
+
+        scrambled: [
+            "سَبا",
+            "داد",
+            "آدامس",
+            "با",
+            "سَما"
+        ]
+
+    },
+
+
+    {
+        correct: [
+            ["با", "او", "بادام", "دادَم"],
+            ["با", "او", "بادام", "دادم"]
+        ],
+
+        scrambled: [
+            "دادَم",
+            "او",
+            "با",
+            "بادام"
+        ]
+
+    },
+
+
+    {
+        correct: [
+            ["او", "با", "اَسب", "آمَد"],
+            ["او", "با", "اسب", "آمد"]
+        ],
+
+        scrambled: [
+            "آمَد",
+            "اَسب",
+            "او",
+            "با"
+        ]
+
+    },
+
+
+    {
+        correct: [
+            ["او", "با", "دَست", "توت", "داد"],
+            ["او", "با", "دست", "توت", "داد"]
+        ],
+
+        scrambled: [
+            "توت",
+            "دَست",
+            "او",
+            "داد",
+            "با"
+        ]
+
+    },
+
+
+    {
+        correct: [
+            ["سام", "با", "اَسما", "دوست", "اَست"],
+            ["سام", "با", "اسما", "دوست", "است"]
+        ],
+
+        scrambled: [
+            "سام",
+            "دوست",
+            "اَست",
+            "با",
+            "اَسما"
+        ]
+
+    }
+
+];
+
+
+let currentSentenceIndex = 0;
+
+let currentSentenceWords = [];
+
+let selectedSentenceBox = null;
+
+let correctSentences = 0;
+
+
+/* شروع جمله‌سازی */
+
+function startSentenceGame() {
+
+    currentSentenceIndex = 0;
+
+    correctSentences = 0;
+
+    $("sentenceScore").textContent = "۰ از ۷";
+
+    $("sentenceProgressBar").style.width = "0%";
+
+    loadSentence();
+
+}
+
+
+/* نمایش جمله */
+
+function loadSentence() {
+
+    selectedSentenceBox = null;
+
+    const item = sentences[currentSentenceIndex];
+
+    currentSentenceWords = shuffleArray(item.scrambled);
+
+    $("sentenceNumber").textContent =
+        currentSentenceIndex + 1;
+
+    $("sentenceFeedback").textContent = "";
+
+    $("sentenceFeedback").className = "feedback";
+
+    $("checkSentence").disabled = false;
+
+    $("nextSentence").disabled = true;
+
+    $("currentSentence").textContent = "؟";
+
+    renderSentenceWords();
+
+}
+
+
+/* ساخت کادر کلمات */
+
+function renderSentenceWords() {
+
+    const container = $("sentenceBoxes");
+
+    container.innerHTML = "";
+
+    currentSentenceWords.forEach((word, index) => {
+
+        const box = document.createElement("button");
+
+        box.className = "sentence-box";
+
+        box.textContent = word;
+
+        box.addEventListener("click", () => {
+
+            selectSentenceWord(index);
+
+        });
+
+        container.appendChild(box);
+
+    });
+
+    updateCurrentSentence();
+
+}
+
+
+/* جابه‌جایی کلمات */
+
+function selectSentenceWord(index) {
+
+    if ($("checkSentence").disabled) {
+        return;
+    }
+
+    const boxes = document.querySelectorAll(".sentence-box");
+
+    if (selectedSentenceBox === null) {
+
+        selectedSentenceBox = index;
+
+        boxes[index].classList.add("selected");
+
+        return;
+
+    }
+
+    if (selectedSentenceBox === index) {
+
+        boxes[index].classList.remove("selected");
+
+        selectedSentenceBox = null;
+
+        return;
+
+    }
+
+    const first = selectedSentenceBox;
+
+    const second = index;
+
+    [
+        currentSentenceWords[first],
+        currentSentenceWords[second]
+    ] = [
+        currentSentenceWords[second],
+        currentSentenceWords[first]
+    ];
+
+    selectedSentenceBox = null;
+
+    renderSentenceWords();
+
+}
+
+
+/* نمایش جمله */
+
+function updateCurrentSentence() {
+
+    $("currentSentence").textContent =
+        currentSentenceWords.join(" ");
+
+}
+
+
+/* بررسی جمله */
+
+$("checkSentence").addEventListener("click", () => {
+
+    const answer = currentSentenceWords.map(normalizeText);
+
+    const acceptedAnswers =
+        sentences[currentSentenceIndex].correct;
+
+    const isCorrect = acceptedAnswers.some(sentence => {
+
+        const normalizedSentence =
+            sentence.map(normalizeText);
+
+        return answer.length === normalizedSentence.length &&
+            answer.every((word, index) => {
+                return word === normalizedSentence[index];
+            });
+
+    });
+
+
+    if (isCorrect) {
+
+        $("sentenceFeedback").textContent =
+            "آفرین! جمله را درست ساختی! 🌟";
+
+        $("sentenceFeedback").className =
+            "feedback good";
+
+        $("currentSentence").textContent =
+            currentSentenceWords.join(" ");
+
+        document.querySelectorAll(".sentence-box").forEach(box => {
+
+            box.classList.add("correct");
+
+        });
+
+        $("checkSentence").disabled = true;
+
+        $("nextSentence").disabled = false;
+
+        correctSentences++;
+
+        updateSentenceProgress();
+
+        playSound("good");
+
+    } else {
+
+        $("sentenceFeedback").textContent =
+            "هنوز جمله درست نشده؛ دوباره کلمه‌ها را مرتب کن. 🌷";
+
+        $("sentenceFeedback").className =
+            "feedback bad";
+
+        playSound("bad");
+
+    }
+
+});
+
+
+/* پیشرفت جمله‌ها */
+
+function updateSentenceProgress() {
+
+    $("sentenceScore").textContent =
+        correctSentences + " از ۷";
+
+    $("sentenceProgressBar").style.width =
+        (correctSentences / 7 * 100) + "%";
+
+}
+
+
+/* جمله بعدی */
+
+$("nextSentence").addEventListener("click", () => {
+
+    currentSentenceIndex++;
+
+    if (currentSentenceIndex >= sentences.length) {
+
+        finishGame();
+
+        return;
+
+    }
+
+    loadSentence();
+
+});
+
+
+/* ==================================
+   پایان بازی
+================================== */
 
 function finishGame() {
 
     $("finishMessage").textContent =
         "آفرین " + student +
-        "! تو جدول دوستی را کامل کردی و هر ۱۵ واژه را ساختی. 🌟";
+        "! تو هر سه مرحله را با موفقیت پشت سر گذاشتی. 🌟";
 
     playSound("good");
 
@@ -688,7 +1219,9 @@ function finishGame() {
 }
 
 
-/* شروع دوباره */
+/* ==================================
+   شروع دوباره بازی
+================================== */
 
 $("restartButton").addEventListener("click", () => {
 
@@ -697,7 +1230,7 @@ $("restartButton").addEventListener("click", () => {
     buildTable();
 
     $("equation").textContent =
-        "برای شروع، یکی از خانه‌ها را انتخاب کن.";
+        "برای شروع، یک نشانه از کنار جدول انتخاب کن.";
 
     $("tableFeedback").textContent = "";
 
@@ -706,6 +1239,8 @@ $("restartButton").addEventListener("click", () => {
     updateTableProgress();
 
     startWordGame();
+
+    startSentenceGame();
 
     showScreen("menu");
 
