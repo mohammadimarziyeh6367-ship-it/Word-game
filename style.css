@@ -74,7 +74,8 @@ p {
     box-shadow: 0 8px 30px #5e43831a;
 }
 
-.stars {
+.stars,
+.finish-stars {
     font-size: 35px;
 }
 
@@ -147,14 +148,14 @@ p {
 
 .stage-options {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    max-width: 750px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    max-width: 1000px;
     margin: 35px auto;
 }
 
 .stage-card {
-    min-height: 180px;
+    min-height: 190px;
     border-radius: 25px;
     color: white;
     display: flex;
@@ -167,19 +168,11 @@ p {
 }
 
 .stage-card strong {
-    font-size: 20px;
+    font-size: 19px;
 }
 
 .stage-card span:last-child {
     font-size: 14px;
-}
-
-.purple {
-    background: linear-gradient(135deg, #7957ca, #a58ae5);
-}
-
-.orange {
-    background: linear-gradient(135deg, #ed9548, #f7b96e);
 }
 
 .stage-number {
@@ -190,6 +183,18 @@ p {
     display: grid;
     place-items: center;
     border-radius: 50%;
+}
+
+.purple {
+    background: linear-gradient(135deg, #7957ca, #a58ae5);
+}
+
+.orange {
+    background: linear-gradient(135deg, #ed9548, #f7b96e);
+}
+
+.green {
+    background: linear-gradient(135deg, #43a878, #78c99b);
 }
 
 .top-bar {
@@ -232,14 +237,14 @@ p {
     background: #7957ca;
     color: white;
     border-radius: 12px;
-    padding: 12px 5px;
+    padding: 10px 5px;
     min-width: 85px;
     font-size: 20px;
 }
 
 #friendTable th.row-head {
     background: #ed9b4d;
-    min-width: 75px;
+    min-width: 80px;
 }
 
 #friendTable td {
@@ -266,7 +271,14 @@ p {
 }
 
 .friend-cell.selected {
-    border-color: #f1a44b;
+    outline: 3px solid #f1a44b;
+}
+
+.friend-cell.invalid {
+    background: #ffe5e5;
+    border-color: #ed5353;
+    color: #d52222;
+    font-size: 27px;
 }
 
 .equation-box {
@@ -321,7 +333,8 @@ p {
     transition: width 0.3s;
 }
 
-.word-progress {
+.word-progress,
+.sentence-progress {
     background: #fff0df;
     color: #b96c25;
     display: inline-block;
@@ -332,8 +345,9 @@ p {
     margin: 10px;
 }
 
-.word-card {
-    max-width: 850px;
+.word-card,
+.sentence-card {
+    max-width: 900px;
     margin: 15px auto;
     background: white;
     padding: 25px 15px;
@@ -346,7 +360,8 @@ p {
     margin-bottom: 30px;
 }
 
-.letter-boxes {
+.letter-boxes,
+.sentence-boxes {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -371,18 +386,37 @@ p {
     touch-action: manipulation;
 }
 
-.letter-box.selected {
+.sentence-box {
+    min-width: 75px;
+    min-height: 65px;
+    padding: 12px 15px;
+    border-radius: 15px;
+    background: #fff0dc;
+    border: 2px solid #f0c28d;
+    color: #8d5725;
+    font-size: clamp(17px, 3vw, 24px);
+    font-weight: bold;
+    display: grid;
+    place-items: center;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.letter-box.selected,
+.sentence-box.selected {
     background: #ffedcf;
     border: 3px solid #ee9b43;
     transform: translateY(-7px);
 }
 
-.letter-box.correct {
+.letter-box.correct,
+.sentence-box.correct {
     background: #e0f6e7;
     border-color: #65bf80;
 }
 
-.word-result {
+.word-result,
+.sentence-result {
     margin-top: 30px;
     padding: 15px;
     background: #fff8eb;
@@ -390,12 +424,14 @@ p {
     font-size: 18px;
 }
 
-.word-result strong {
+.word-result strong,
+.sentence-result strong {
     display: block;
     color: #6747ac;
     font-size: 28px;
     margin-top: 10px;
     min-height: 38px;
+    line-height: 1.8;
 }
 
 .word-help {
@@ -415,10 +451,6 @@ p {
     background: linear-gradient(135deg, #e99b4f, #f4b66b);
 }
 
-.finish-stars {
-    font-size: 40px;
-}
-
 .finish-trophy {
     font-size: 75px;
     margin: 20px;
@@ -429,6 +461,18 @@ p {
     line-height: 2;
 }
 
+@media (max-width: 750px) {
+
+    .stage-options {
+        grid-template-columns: 1fr;
+    }
+
+    .stage-card {
+        min-height: 140px;
+    }
+
+}
+
 @media (max-width: 650px) {
 
     .app {
@@ -437,14 +481,6 @@ p {
 
     .screen {
         padding: 15px 5px;
-    }
-
-    .stage-options {
-        grid-template-columns: 1fr;
-    }
-
-    .stage-card {
-        min-height: 140px;
     }
 
     .equation-box {
