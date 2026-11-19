@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#7356c7">
 
-<title>بازی جدول دوستی و واژه‌سازی</title>
+<title>بازی جدول دوستی و جمله‌سازی</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
@@ -23,16 +23,16 @@
             <div class="stars">⭐ 🌸 ⭐</div>
 
             <h1>بازی جدول دوستی</h1>
-
-            <h2>و قطار واژه‌ها</h2>
+            <h2>واژه‌سازی و جمله‌سازی</h2>
 
             <p class="welcome-text">
-                آماده‌ای با نشانه‌ها دوست شوی
-                و واژه‌های قشنگ بسازی؟
+                آماده‌ای با نشانه‌ها دوست شوی،
+                واژه بسازی و جمله‌های قشنگ درست کنی؟
             </p>
 
             <div class="name-box">
                 <label for="studentName">نام دانش‌آموز:</label>
+
                 <input
                     type="text"
                     id="studentName"
@@ -56,28 +56,48 @@
     </section>
 
 
-    <!-- صفحه انتخاب مرحله -->
+    <!-- انتخاب مرحله -->
 
     <section id="menu" class="screen">
 
         <h1>سلام <span id="displayName"></span> 🌷</h1>
 
         <p class="section-description">
-            کدام بازی را انتخاب می‌کنی؟
+            آماده‌ای سه مأموریت را انجام بدهی؟
         </p>
 
         <div class="stage-options">
 
             <button id="stageOneButton" class="stage-card purple">
+
                 <span class="stage-number">۱</span>
+
                 <strong>جدول دوستی نشانه‌ها</strong>
+
                 <span>نشانه‌ها را با هم دوست کن</span>
+
             </button>
 
+
             <button id="stageTwoButton" class="stage-card orange">
+
                 <span class="stage-number">۲</span>
+
                 <strong>قطار واژه‌ها</strong>
+
                 <span>نشانه‌ها را مرتب کن</span>
+
+            </button>
+
+
+            <button id="stageThreeButton" class="stage-card green">
+
+                <span class="stage-number">۳</span>
+
+                <strong>جمله‌سازی</strong>
+
+                <span>کلمات را مرتب کن و جمله بساز</span>
+
             </button>
 
         </div>
@@ -108,8 +128,8 @@
         <h1>جدول دوستی نشانه‌ها</h1>
 
         <p class="instruction">
-            یک نشانه از بالا و یک نشانه از کنار انتخاب کن.
-            ترکیب آن‌ها را پیدا کن!
+            ابتدا یک نشانه از کنار جدول انتخاب کن.
+            سپس دوستش را از بالای جدول پیدا کن.
         </p>
 
         <div class="table-wrapper">
@@ -121,7 +141,7 @@
         <div class="equation-box">
 
             <div id="equation">
-                برای شروع، یکی از خانه‌ها را انتخاب کن.
+                برای شروع، یک نشانه از کنار جدول انتخاب کن.
             </div>
 
             <div id="tableFeedback" class="feedback"></div>
@@ -142,7 +162,7 @@
         </div>
 
         <button id="finishTable" class="main-button" disabled>
-            پایان جدول و رفتن به مرحله بعد
+            رفتن به مرحله دوم
         </button>
 
         <img
@@ -172,7 +192,7 @@
 
         <p class="instruction">
             نشانه‌ها به‌هم‌ریخته‌اند!
-            آن‌ها را جابه‌جا کن تا واژه درست ساخته شود.
+            آن‌ها را مرتب کن تا واژه درست ساخته شود.
         </p>
 
         <div class="word-progress">
@@ -184,7 +204,7 @@
         <div class="word-card">
 
             <div class="word-hint">
-                نشانه‌ها را به ترتیب درست بچین:
+                کادرها را به ترتیب درست بچین:
             </div>
 
             <div id="letterBoxes" class="letter-boxes"></div>
@@ -239,7 +259,92 @@
     </section>
 
 
-    <!-- صفحه پایان -->
+    <!-- مرحله سوم -->
+
+    <section id="stageThree" class="screen">
+
+        <div class="top-bar">
+
+            <button class="small-button" id="backToMenu3">
+                بازگشت
+            </button>
+
+            <span class="stage-label">مرحله سوم</span>
+
+        </div>
+
+        <h1>جمله‌سازی 📝</h1>
+
+        <p class="instruction">
+            کلمات به‌هم‌ریخته‌اند!
+            آن‌ها را جابه‌جا کن و یک جملهٔ درست بساز.
+        </p>
+
+        <div class="sentence-progress">
+            جمله
+            <span id="sentenceNumber">۱</span>
+            از ۷
+        </div>
+
+        <div class="sentence-card">
+
+            <div class="word-hint">
+                کلمه‌ها را به ترتیب درست بچین:
+            </div>
+
+            <div id="sentenceBoxes" class="sentence-boxes"></div>
+
+            <div class="sentence-result">
+
+                <span>جملهٔ ساخته‌شده:</span>
+
+                <strong id="currentSentence">؟</strong>
+
+            </div>
+
+        </div>
+
+        <div class="word-help">
+            برای جابه‌جایی، دو کلمه را به ترتیب لمس کن.
+        </div>
+
+        <div id="sentenceFeedback" class="feedback"></div>
+
+        <div class="word-buttons">
+
+            <button id="checkSentence" class="main-button">
+                بررسی جمله
+            </button>
+
+            <button id="nextSentence" class="main-button next-button" disabled>
+                جمله بعدی
+            </button>
+
+        </div>
+
+        <div class="progress-area">
+
+            <div class="progress-text">
+                جمله‌های درست:
+                <span id="sentenceScore">۰ از ۷</span>
+            </div>
+
+            <div class="progress-track">
+                <div id="sentenceProgressBar" class="progress-fill"></div>
+            </div>
+
+        </div>
+
+        <img
+            src="my-photo.jpg.PNG"
+            alt="امضای آموزگار"
+            class="signature"
+        >
+
+    </section>
+
+
+    <!-- پایان بازی -->
 
     <section id="finish" class="screen">
 
