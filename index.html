@@ -1,327 +1,281 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>آکادمی کلمات | بازی تعاملی</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #FF9a9e 0%, #Fad0C4 99%, #Fad0C4 100%);
-            --accent-color: #4facfe;
-            --success-color: #00f2fe;
-            --danger-color: #ff4b2b;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text-main: #4a4a4a;
-            --border-radius: 25px;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Tahoma', 'Segoe UI', sans-serif;
-            background: #f0f4f8;
-            background-image: radial-gradient(#d1d9e6 1px, transparent 1px);
-            background-size: 20px 20px;
-            color: var(--text-main);
-            overflow-x: hidden;
-            user-select: none;
-        }
-        .header {
-            background: var(--primary-gradient);
-            padding: 20px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative;
-            border-bottom-left-radius: 50px;
-            border-bottom-right-radius: 50px;
-        }
-        .profile-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        .profile-img {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            border: 6px solid white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        .header h1 {
-            margin: 10px 0 5px;
-            font-size: clamp(24px, 5vw, 36px);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        .instruction {
-            text-align: center;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: inline-block;
-            position: relative;
-            left: 50%;
-            transform: translateX(-50%);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            font-weight: bold;
-            color: #666;
-        }
-        .game-wrapper {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .game-row {
-            background: var(--card-bg);
-            margin-bottom: 25px;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-        .tokens-area {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex: 1;
-        }
-        .token {
-            width: 60px;
-            height: 60px;
-            background: white;
-            border: 3px solid #cbd5e0;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: grab;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 0 #cbd5e0;
-            user-select: none;
-            touch-action: none;
-        }
-        .token:active {
-            cursor: grabbing;
-            transform: scale(0.9);
-            box-shadow: 0 2px 0 #cbd5e0;
-        }
-        .token.dragging {
-            opacity: 0.5;
-            transform: scale(1.1);
-            z-index: 1000;
-        }
-        .answer-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            min-width: 200px;
-        }
-        .answer-input {
-            width: 160px;
-            height: 60px;
-            border: 3px solid #e2e8f0;
-            border-radius: 15px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        .answer-input:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 10px rgba(79, 172, 254, 0.3);
-        }
-        .check-btn {
-            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-        }
-        .check-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
-        }
-        .row-success { border-color: #4ade80; background: #f0fdf4; }
-        .row-error { border-color: #f87171; background: #fef2f2; animation: shake 0.4s ease-in-out; }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            50% { transform: translateX(8px); }
-            75% { transform: translateX(-8px); }
-        }
-        @media (max-width: 768px) {
-            .game-row { flex-direction: column; text-align: center; }
-            .answer-area { width: 100%; flex-direction: row; justify-content: center; }
-            .answer-input { width: 120px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#7356c7">
+
+<title>بازی جدول دوستی و واژه‌سازی</title>
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <div class="header">
-        <div class="profile-container">
-            <img src="my photo.PNG" alt="معلم عزیز" class="profile-img">
-            <h1>بازی جادویی کلمات</h1>
+<div class="app">
+
+    <!-- صفحه شروع -->
+
+    <section id="welcome" class="screen active">
+
+        <div class="welcome-card">
+
+            <div class="stars">⭐ 🌸 ⭐</div>
+
+            <h1>بازی جدول دوستی</h1>
+
+            <h2>و قطار واژه‌ها</h2>
+
+            <p class="welcome-text">
+                آماده‌ای با نشانه‌ها دوست شوی
+                و واژه‌های قشنگ بسازی؟
+            </p>
+
+            <div class="name-box">
+                <label for="studentName">نام دانش‌آموز:</label>
+                <input
+                    type="text"
+                    id="studentName"
+                    placeholder="نامت را بنویس"
+                    maxlength="30"
+                >
+            </div>
+
+            <button id="startButton" class="main-button">
+                شروع بازی 🚀
+            </button>
+
+            <img
+                src="my-photo.jpg.PNG"
+                alt="امضای آموزگار"
+                class="signature"
+            >
+
         </div>
-        <div class="instruction">🧩 تمام نشانه‌ها (حتی فتحه‌ها) را جابه‌جا کن و کلمه را بساز!</div>
-    </div>
 
-    <div class="game-wrapper" id="mainGame"></div>
+    </section>
 
-    <audio id="sound-success" src="https://cdn.pixabay.com/audio/2021/08/04/audio_bb4569341e.mp3"></audio>
-    <audio id="sound-error" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c98bc9d22d.mp3"></audio>
 
-    <script>
-        // تمام نشانه‌های شما دقیقاً به عنوان مهره (دکمه) تعریف شدند
-        const gameData = [
-            { tokens: ["آ", "ب", "د", "ا"], answer: "آداب" },
-            { tokens: ["بـ", "آ", "ا", "د"], answer: "آباد" },
-            { tokens: ["ا", "م", "بـ"], answer: "بام" },
-            { tokens: ["بـ", "-َ", "د", "سـ", "-َ"], answer: "سبد" },
-            { tokens: ["د", "ت", "سـ", "- َ"], answer: "دست" },
-            { tokens: ["ا", "مـ", "ا", "د", "د"], answer: "داماد" },
-            { tokens: ["م", "سـ", "ا"], answer: "سام" },
-            { tokens: ["ب", "ا", "اَ"], answer: "ابا" },
-            { tokens: ["سـ", "م", "- َ"], answer: "سم" },
-            { tokens: ["ب", "د", "اَ", "-َ"], answer: "ادب" },
-            { tokens: ["سـ", "مـ", "ا", "- َ"], answer: "سما" },
-            { tokens: ["د", "ا", "مـ", "- َ"], answer: "دما" },
-            { tokens: ["م", "د", "آ", "- َ"], answer: "آدم" },
-            { tokens: ["مـ", "اَ", "ا", "سـ"], answer: "اسما" },
-            { tokens: ["م", "د", "آ", "مـ", "-‌َ", "-‌َ"], answer: "آمدَم" }
-        ];
+    <!-- صفحه انتخاب مرحله -->
 
-        const mainGame = document.getElementById('mainGame');
-        const soundSuccess = document.getElementById('sound-success');
-        const soundError = document.getElementById('sound-error');
+    <section id="menu" class="screen">
 
-        function initGame() {
-            gameData.forEach((data, index) => {
-                const row = document.createElement('div');
-                row.className = 'game-row';
-                row.id = `row-${index}`;
+        <h1>سلام <span id="displayName"></span> 🌷</h1>
 
-                const tokensArea = document.createElement('div');
-                tokensArea.className = 'tokens-area';
-                
-                // مخلوط کردن تمام نشانه‌ها (شامل فتحه‌ها)
-                const shuffledTokens = [...data.tokens].sort(() => Math.random() - 0.5);
-                
-                shuffledTokens.forEach(t => {
-                    const tokenEl = document.createElement('div');
-                    tokenEl.className = 'token';
-                    tokenEl.textContent = t;
-                    tokenEl.draggable = true;
-                    tokenEl.addEventListener('dragstart', handleDragStart);
-                    tokenEl.addEventListener('dragend', handleDragEnd);
-                    tokensArea.appendChild(tokenEl);
-                });
+        <p class="section-description">
+            کدام بازی را انتخاب می‌کنی؟
+        </p>
 
-                const answerArea = document.createElement('div');
-                answerArea.className = 'answer-area';
-                answerArea.innerHTML = `
-                    <input type="text" class="answer-input" id="input-${index}" placeholder="...">
-                    <button class="check-btn" onclick="validate(${index})">بررسی</button>
-                `;
+        <div class="stage-options">
 
-                row.appendChild(tokensArea);
-                row.appendChild(answerArea);
-                mainGame.appendChild(row);
+            <button id="stageOneButton" class="stage-card purple">
+                <span class="stage-number">۱</span>
+                <strong>جدول دوستی نشانه‌ها</strong>
+                <span>نشانه‌ها را با هم دوست کن</span>
+            </button>
 
-                tokensArea.addEventListener('dragover', handleDragOver);
-                tokensArea.addEventListener('drop', handleDrop);
-            });
-        }
+            <button id="stageTwoButton" class="stage-card orange">
+                <span class="stage-number">۲</span>
+                <strong>قطار واژه‌ها</strong>
+                <span>نشانه‌ها را مرتب کن</span>
+            </button>
 
-        let draggedElement = null;
+        </div>
 
-        function handleDragStart(e) {
-            draggedElement = this;
-            this.classList.add('dragging');
-            e.dataTransfer.setData('text/plain', this.textContent);
-        }
+        <img
+            src="my-photo.jpg.PNG"
+            alt="امضای آموزگار"
+            class="signature"
+        >
 
-        function handleDragEnd() {
-            this.classList.remove('dragging');
-        }
+    </section>
 
-        function handleDragOver(e) {
-            e.preventDefault();
-        }
 
-        function handleDrop(e) {
-            e.preventDefault();
-            const targetToken = e.target.closest('.token');
-            if (targetToken && draggedElement && targetToken !== draggedElement) {
-                const tempText = targetToken.textContent;
-                targetToken.textContent = draggedElement.textContent;
-                draggedElement.textContent = tempText;
-            }
-        }
+    <!-- مرحله اول -->
 
-        window.validate = function(index) {
-            const input = document.getElementById(`input-${index}`);
-            const row = document.getElementById(`row-${index}`);
-            const userValue = input.value.trim();
-            const correctValue = gameData[index].answer;
+    <section id="stageOne" class="screen">
 
-            if (userValue === correctValue) {
-                row.className = 'game-row row-success';
-                soundSuccess.play();
-                confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
-                });
-            } else {
-                row.className = 'game-row row-error';
-                soundError.play();
-                setTimeout(() => { row.classList.remove('row-error'); }, 500);
-            }
-        };
+        <div class="top-bar">
 
-        document.addEventListener('touchstart', function(e) {
-            if(e.target.classList.contains('token')) {
-                draggedElement = e.target;
-                draggedElement.classList.add('dragging');
-            }
-        }, {passive: true});
+            <button class="small-button" id="backToMenu1">
+                بازگشت
+            </button>
 
-        document.addEventListener('touchend', function(e) {
-            if(!draggedElement) return;
-            const touch = e.changedTouches[0];
-            const target = document.elementFromPoint(touch.clientX, touch.clientY);
-            const targetToken = target ? target.closest('.token') : null;
-            if(targetToken && targetToken !== draggedElement) {
-                const tempText = targetToken.textContent;
-                targetToken.textContent = draggedElement.textContent;
-                draggedElement.textContent = tempText;
-            }
-            draggedElement.classList.remove('dragging');
-            draggedElement = null;
-        }, {passive: true});
+            <span class="stage-label">مرحله اول</span>
 
-        window.onload = initGame;
-    </script>
+        </div>
+
+        <h1>جدول دوستی نشانه‌ها</h1>
+
+        <p class="instruction">
+            یک نشانه از بالا و یک نشانه از کنار انتخاب کن.
+            ترکیب آن‌ها را پیدا کن!
+        </p>
+
+        <div class="table-wrapper">
+
+            <table id="friendTable"></table>
+
+        </div>
+
+        <div class="equation-box">
+
+            <div id="equation">
+                برای شروع، یکی از خانه‌ها را انتخاب کن.
+            </div>
+
+            <div id="tableFeedback" class="feedback"></div>
+
+        </div>
+
+        <div class="progress-area">
+
+            <div class="progress-text">
+                خانه‌های کامل‌شده:
+                <span id="tableProgress">۰ از ۳۰</span>
+            </div>
+
+            <div class="progress-track">
+                <div id="tableProgressBar" class="progress-fill"></div>
+            </div>
+
+        </div>
+
+        <button id="finishTable" class="main-button" disabled>
+            پایان جدول و رفتن به مرحله بعد
+        </button>
+
+        <img
+            src="my-photo.jpg.PNG"
+            alt="امضای آموزگار"
+            class="signature"
+        >
+
+    </section>
+
+
+    <!-- مرحله دوم -->
+
+    <section id="stageTwo" class="screen">
+
+        <div class="top-bar">
+
+            <button class="small-button" id="backToMenu2">
+                بازگشت
+            </button>
+
+            <span class="stage-label">مرحله دوم</span>
+
+        </div>
+
+        <h1>قطار واژه‌ها 🚂</h1>
+
+        <p class="instruction">
+            نشانه‌ها به‌هم‌ریخته‌اند!
+            آن‌ها را جابه‌جا کن تا واژه درست ساخته شود.
+        </p>
+
+        <div class="word-progress">
+            واژه
+            <span id="wordNumber">۱</span>
+            از ۱۵
+        </div>
+
+        <div class="word-card">
+
+            <div class="word-hint">
+                نشانه‌ها را به ترتیب درست بچین:
+            </div>
+
+            <div id="letterBoxes" class="letter-boxes"></div>
+
+            <div class="word-result">
+
+                <span>واژهٔ ساخته‌شده:</span>
+
+                <strong id="currentWord">؟</strong>
+
+            </div>
+
+        </div>
+
+        <div class="word-help">
+            برای جابه‌جایی، دو کادر را به ترتیب لمس کن.
+        </div>
+
+        <div id="wordFeedback" class="feedback"></div>
+
+        <div class="word-buttons">
+
+            <button id="checkWord" class="main-button">
+                بررسی پاسخ
+            </button>
+
+            <button id="nextWord" class="main-button next-button" disabled>
+                واژه بعدی
+            </button>
+
+        </div>
+
+        <div class="progress-area">
+
+            <div class="progress-text">
+                واژه‌های درست:
+                <span id="wordScore">۰ از ۱۵</span>
+            </div>
+
+            <div class="progress-track">
+                <div id="wordProgressBar" class="progress-fill"></div>
+            </div>
+
+        </div>
+
+        <img
+            src="my-photo.jpg.PNG"
+            alt="امضای آموزگار"
+            class="signature"
+        >
+
+    </section>
+
+
+    <!-- صفحه پایان -->
+
+    <section id="finish" class="screen">
+
+        <div class="finish-card">
+
+            <div class="finish-stars">🌟 🎉 🌟</div>
+
+            <h1>آفرین!</h1>
+
+            <p id="finishMessage">
+                بازی را با موفقیت به پایان رساندی.
+            </p>
+
+            <div class="finish-trophy">🏆</div>
+
+            <button id="restartButton" class="main-button">
+                بازی دوباره
+            </button>
+
+            <button id="menuButton" class="small-button">
+                بازگشت به صفحه مراحل
+            </button>
+
+            <img
+                src="my-photo.jpg.PNG"
+                alt="امضای آموزگار"
+                class="signature"
+            >
+
+        </div>
+
+    </section>
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
