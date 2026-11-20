@@ -1047,7 +1047,6 @@ $("nextWord").addEventListener("click", () => {
    اسما با سما دوست است. 
 */
 
-
 const sentences = [
 
     {
@@ -1063,9 +1062,7 @@ const sentences = [
             "با",
             "بامداد"
         ]
-
     },
-
 
     {
         correct: [
@@ -1078,9 +1075,7 @@ const sentences = [
             "دود",
             "بود"
         ]
-
     },
-
 
     {
         correct: [
@@ -1097,9 +1092,7 @@ const sentences = [
             "با",
             "سَما"
         ]
-
     },
-
 
     {
         correct: [
@@ -1113,9 +1106,7 @@ const sentences = [
             "با",
             "بادام"
         ]
-
     },
-
 
     {
         correct: [
@@ -1129,9 +1120,7 @@ const sentences = [
             "او",
             "با"
         ]
-
     },
-
 
     {
         correct: [
@@ -1146,9 +1135,7 @@ const sentences = [
             "داد",
             "با"
         ]
-
     },
-
 
     {
         correct: [
@@ -1163,7 +1150,61 @@ const sentences = [
             "با",
             "اَسما"
         ]
+    },
 
+    {
+        correct: [
+            ["بابا", "با", "دَست", "تاب", "بَست"]
+        ],
+
+        scrambled: [
+            "تاب",
+            "بابا",
+            "بَست",
+            "با",
+            "دَست"
+        ]
+    },
+
+    {
+        correct: [
+            ["دوستَم", "ماست", "با", "توت", "داد"]
+        ],
+
+        scrambled: [
+            "توت",
+            "داد",
+            "دوستَم",
+            "با",
+            "ماست"
+        ]
+    },
+
+    {
+        correct: [
+            ["با", "او", "دَست", "دادَم"]
+        ],
+
+        scrambled: [
+            "دادَم",
+            "دَست",
+            "او",
+            "با"
+        ]
+    },
+
+    {
+        correct: [
+            ["آب", "با", "سوت", "دَستَم", "بود"]
+        ],
+
+        scrambled: [
+            "دَستَم",
+            "آب",
+            "بود",
+            "سوت",
+            "با"
+        ]
     }
 
 ];
@@ -1186,7 +1227,7 @@ function startSentenceGame() {
 
     correctSentences = 0;
 
-    $("sentenceScore").textContent = "۰ از ۷";
+    $("sentenceScore").textContent = "۰ از۱۱";
 
     $("sentenceProgressBar").style.width = "0%";
 
@@ -1383,10 +1424,10 @@ $("checkSentence").addEventListener("click", () => {
 function updateSentenceProgress() {
 
     $("sentenceScore").textContent =
-        correctSentences + " از ۷";
+        correctSentences + " از ۱۱";
 
     $("sentenceProgressBar").style.width =
-        (correctSentences / 7 * 100) + "%";
+        (correctSentences / 11 * 100) + "%";
 
 }
 
