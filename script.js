@@ -216,7 +216,75 @@ function celebrate() {
 
 }
 
+/* ==================================
+   صدای لمس دکمه‌ها
+================================== */
 
+document.addEventListener("click", function(event) {
+
+    const button = event.target.closest("button");
+
+    if (!button) return;
+
+    if (
+        button.disabled ||
+        button.classList.contains("letter-box") ||
+        button.classList.contains("sentence-box") ||
+        button.classList.contains("friend-cell")
+    ) {
+        return;
+    }
+
+    playClickSound();
+
+});
+
+
+function playClickSound() {
+
+    try {
+
+        const audio = getAudio();
+
+        if (!audio) return;
+
+        const oscillator = audio.createOscillator();
+        const gain = audio.createGain();
+
+        oscillator.type = "sine";
+
+        oscillator.frequency.setValueAtTime(
+            720,
+            audio.currentTime
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            950,
+            audio.currentTime + 0.07
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+
+        gain.gain.setValueAtTime(
+            0.08,
+            audio.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audio.currentTime + 0.12
+        );
+
+        oscillator.start();
+
+        oscillator.stop(audio.currentTime + 0.12);
+
+    } catch (error) {
+        console.log("Click sound unavailable");
+    }
+
+}
 
 /* ==================================
    نام دانش‌آموز
